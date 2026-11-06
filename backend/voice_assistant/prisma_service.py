@@ -103,9 +103,11 @@ async def transcribe_audio(
     }
 
     # Multipart form payload matching Gnani documentation
-    # audio_file and language_code
+    clean_filename = filename if filename and filename.endswith(('.wav', '.ogg', '.m4a', '.mp3', '.flac', '.aac')) else "recording.wav"
+    actual_content_type = "audio/wav" if clean_filename.endswith(".wav") else (content_type or "audio/wav")
+
     files = {
-        "audio_file": (filename or "recording.webm", file_bytes, content_type or "audio/webm")
+        "audio_file": (clean_filename, file_bytes, actual_content_type)
     }
     data = {
         "language_code": normalized_lang
