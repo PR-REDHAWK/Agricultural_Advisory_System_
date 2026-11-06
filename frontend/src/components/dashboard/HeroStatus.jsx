@@ -57,13 +57,13 @@ export default function HeroStatus({ selectedRegion, liveForecast }) {
   };
 
   return (
-    <div className="glass-panel p-[26px] flex flex-col justify-between h-full relative overflow-hidden">
+    <div className="glass-panel p-6.5 flex flex-col justify-between h-full relative overflow-hidden">
       <div className="flex justify-between items-start">
         <div>
           <span className="panel-label">{t("hero_onset_label", "7D Monsoon Onset Probability")}</span>
           <div className="font-display text-[19px] font-semibold mt-1 text-text-hi">
             {selectedRegion?.name || "Uttar Pradesh"}
-            <span className="text-text-mid font-normal text-[13px] block mt-0.5 font-sans flex items-center gap-1.5 flex-wrap">
+            <span className="text-text-mid font-normal text-[13px] block mt-0.5 font-sans items-center gap-1.5 flex-wrap">
               {selectedRegion?.level === "District" ? t("district_monitor", "District Monitor") : t("state_monitor", "State Monitor")}
               {!isDirectMatch && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-mono text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20" title={`Using regional baseline model (${resolvedState})`}>
@@ -79,7 +79,7 @@ export default function HeroStatus({ selectedRegion, liveForecast }) {
       </div>
       
       <div>
-        <div className="font-display text-[64px] font-bold leading-none my-4 tracking-[-0.02em] text-transparent bg-clip-text bg-gradient-to-br from-white to-[#b9b2f7]">
+        <div className="font-display text-[64px] font-bold leading-none my-4 tracking-[-0.02em] text-transparent bg-clip-text bg-linear-to-br from-white to-[#b9b2f7]">
           {Math.round(onset7d)}<sup className="text-[28px] opacity-70">%</sup>
         </div>
         <div className="text-text-mid text-[13.5px] mb-3">
@@ -92,7 +92,7 @@ export default function HeroStatus({ selectedRegion, liveForecast }) {
           className={`w-full p-3 px-4 rounded-xl border flex items-center justify-between font-mono text-[12.5px] cursor-pointer transition-all duration-200 shadow-sm ${
             isSpeaking 
               ? "bg-rose-500/15 border-rose-500/50 text-rose-600 font-semibold animate-pulse" 
-              : "bg-gradient-to-r from-violet-500/15 via-teal-500/15 to-violet-500/10 border-violet-500/30 hover:border-violet-500/60 text-text-hi hover:scale-[1.01]"
+              : "bg-linear-to-r from-violet-500/15 via-teal-500/15 to-violet-500/10 border-violet-500/30 hover:border-violet-500/60 text-text-hi hover:scale-[1.01]"
           }`}
           title={isSpeaking ? t("stop_voice", "Stop Audio") : t("listen_voice", "Listen to Voice Summary")}
         >
@@ -119,7 +119,7 @@ export default function HeroStatus({ selectedRegion, liveForecast }) {
         </button>
       </div>
       
-      <div className="flex gap-[22px] mt-5 pt-4 border-t border-glass-borderSoft flex-wrap">
+      <div className="flex gap-5.5 mt-5 pt-4 border-t border-glass-borderSoft flex-wrap">
         <Metric label={t("metric_break_7d", "Break Spell (7D)")} value={`${Math.round(break7d)}%`} trend={break7d > 50 ? "up" : "neutral"} />
         <Metric label={t("metric_heavy_7d", "Heavy Rain (7D)")} value={`${Math.round(heavy7d)}%`} trend={heavy7d > 50 ? "up" : "neutral"} />
         <Metric label={t("metric_soil_moist", "Soil Moist.")} value="25%" trend="down" />

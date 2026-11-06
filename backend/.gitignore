@@ -1,7 +1,22 @@
+# Virtual environments
+.venv/
 venv/
+
+# Python cache
 __pycache__/
-*.pyc
-monsoon.db
+*.py[cod]
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Environment variables
 .env
+
+# Generated database
+monsoon.db
+
+# Generated data
 data/*.grd
 data/rainfall in india 1901-2015.csv
