@@ -1,4 +1,4 @@
-# 🌦️ Monsoon Event Forecasting & Agricultural Advisory System
+# Monsoon Event Forecasting & Conversational Agricultural Intelligence System
 
 [![SIH 2026](https://img.shields.io/badge/Hackathon-Smart_India_Hackathon_2026-blue.svg)](https://sih.gov.in)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://smart-india-hackathon-2026.vercel.app)
@@ -7,259 +7,346 @@
 [![Python](https://img.shields.io/badge/Backend-FastAPI_%2F_Python_3.12-green.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React_%2F_Tailwind_v4-cyan.svg)](https://react.dev)
 [![XGBoost](https://img.shields.io/badge/ML-XGBoost_%2F_Isotonic_Calibration-orange.svg)](https://xgboost.readthedocs.io)
+[![Gnani AI](https://img.shields.io/badge/Voice_AI-Gnani_Prisma_%26_Timbre-purple.svg)](https://gnani.ai)
 
-An end-to-end, sub-seasonal probabilistic monsoon forecasting platform and deterministic agricultural decision-support engine. Built for the **Smart India Hackathon (SIH 2026)**, this platform empowers Indian farmers, agronomists, and agricultural extension officers (KVKs) to mitigate extreme monsoon climate risks (*Monsoon Onset, Dry Spells/Break Spells, Heavy Rain Events*) through machine learning predictions and growth-stage advisories.
-
----
-
-## 🌐 Live Deployed Application & API
-
-- **🚀 Web Dashboard (Frontend)**: [smart-india-hackathon-2026.vercel.app](https://smart-india-hackathon-2026.vercel.app)
-- **⚡ Backend REST API**: [monsoon-forcasting.onrender.com](https://monsoon-forcasting.onrender.com)
-- **📖 Interactive API Documentation**: [monsoon-forcasting.onrender.com/docs](https://monsoon-forcasting.onrender.com/docs)
+An end-to-end, sub-seasonal probabilistic meteorological forecasting platform and deterministic agricultural decision-support engine. Built for the Smart India Hackathon (SIH 2026), the system empowers Indian farmers, agronomists, and Krishi Vigyan Kendra (KVK) extension officers to mitigate extreme monsoon climate risks through calibrated machine learning forecasts, growth-stage advisories, and an integrated voice-first conversational AI interface powered by Gnani AI speech models.
 
 ---
 
-## 🌟 Key System Capabilities
+## 1. System Overview & Core Capabilities
 
-### 1. 📊 Sub-Seasonal Probabilistic Event Forecasting
-- **Multi-Horizon Predictions**: Calculates calibrated probabilities for **Monsoon Onset**, **Break Spells (Dry Spells)**, and **Heavy Rain Events** across four lead horizons: **7 Days, 14 Days, 21 Days, and 30 Days**.
-- **Meteorological Feature Suite**: Built on 30 validated atmospheric and oceanographic features including rainfall lags, wet/dry streaks, seasonality indicators, and global climate drivers (**ENSO / Niño 3.4, Indian Ocean Dipole (IOD), MJO Phase & Amplitude**).
-- **Probability Calibration**: All raw XGBoost model outputs are calibrated using **Isotonic Regression** to produce reliable probability estimates.
+### 1.1 Sub-Seasonal Probabilistic Event Forecasting
+- Multi-Horizon Predictions: Calibrated probabilities for Monsoon Onset, Break Spells (Dry Spells), and Heavy Rain Events across four lead horizons: 7 Days, 14 Days, 21 Days, and 30 Days.
+- Meteorological Feature Engine: Built on 30 validated atmospheric and oceanographic parameters, including short-term rainfall lags, consecutive streak indicators, seasonality transforms, and teleconnection drivers (ENSO / Nino 3.4 SST Anomaly, Southern Oscillation Index [SOI], Oceanic Nino Index [ONI], Indian Ocean Dipole [IOD], and Madden-Julian Oscillation [MJO Phase and Amplitude]).
+- Probability Calibration: Raw XGBoost predictions are calibrated using Isotonic Regression on held-out temporal validation folds to produce reliable probability scores (Brier Score: 0.042).
 
-### 2. 🌾 Phase 6 Agricultural Advisory Engine
-- **50+ Crop Catalog**: Comprehensive advisory coverage across **50+ major Indian crops** (Cereal grains, Pulses, Oilseeds, Commercial crops, Vegetables, Spices, Plantation crops).
-- **6 Growth Stages**: Tailored recommendations for **Sowing, Germination/Establishment, Vegetative, Flowering, Grain/Fruit Development, and Harvest**.
-- **Priority Hierarchy**: Enforces a 5-tier agronomic rule hierarchy to deliver 1 primary actionable advice and supporting secondary actions.
+### 1.2 Phase 6 Agricultural Advisory Engine
+- 50+ Crop Catalog: Decision support across major Indian agricultural commodities (Cereal grains, Pulses, Oilseeds, Commercial crops, Vegetables, Spices, and Plantation crops).
+- 6 Growth Stages: Explicit agronomic rules mapped across Sowing, Germination / Establishment, Vegetative, Flowering, Grain/Fruit Development, and Harvest.
+- Deterministic Priority Hierarchy: Enforces a 5-tier agronomic rule hierarchy to generate 1 primary recommendation and supporting secondary checklist actions.
+- False-Onset Risk Protection: Detects false-onset conditions where high initial precipitation is followed by an early dry spell (Onset_14d >= 60% and Break_14d >= 50%), generating explicit warnings to prevent premature sowing and seed rot.
 
-### 3. ⚠️ False-Onset Risk Protection
-- Detects dangerous false-onset scenarios where high early rainfall is immediately followed by a severe dry spell ($\text{Onset}_{14d} \ge 60\%$ AND $\text{Break}_{14d} \ge 50\%$).
-- Triggers explicit warning codes (`FALSE_ONSET_WARNING`) to prevent costly premature sowing and seed rot.
+### 1.3 Monsoon AI Voice Assistant (Powered by Gnani AI)
+- Voice-First Multilingual Interaction: Allows farmers and field workers to ask agricultural and weather queries naturally in Hindi and Hinglish using microphone audio or text.
+- Speech-to-Text (STT) via Prisma v2.5: Integrated with Gnani Prisma v2.5 (`POST https://api.vachana.ai/stt/v3`). Includes an in-browser Web Audio converter that resamples and encodes microphone input into 16kHz mono 16-bit PCM WAV.
+- Grounded Conversational Reasoning: Extracts crop names, growth stages, locations, and lead horizons from conversational queries. Answers are strictly grounded in live model predictions and Phase 6 rules, eliminating hallucinations.
+- Multi-Turn Context Memory: Maintains conversation session context so follow-up inquiries ("What should I do then?", "Will it rain next week?") resolve seamlessly without re-asking location or crop details.
+- Text-to-Speech (TTS) via Timbre v2.5: Converts the generated Hindi recommendations into natural synthetic speech via Gnani Timbre v2.5 (`POST https://api.vachana.ai/api/v1/tts/inference`), incorporating phonetic text normalization for numbers, percentages, and technical terms.
 
-### 4. 🇮🇳 100% Location Honesty & District-Level Resolution
-- Resolution support across all **28 Indian States** and top agricultural districts (*e.g., Meerut, Lucknow, Wayanad, Mumbai, Jaipur, Patna, Visakhapatnam*).
-- Transparent metadata indicators (`is_direct_match` boolean and `location_resolution_note`) notify users when regional model baselines are active (`ℹ️ Regional Baseline`).
-
-### 5. 🗣️ Bilingual UI & Voice Advisory Engine (English & Hindi)
-- Seamless real-time language toggling between **English** and **Hindi (हिंदी)** across all dashboard components and advisories.
-- Integrated **Text-To-Speech (Audio Reader)** allowing farmers and field officers to listen to audio advisories directly in their native language.
-
-### 6. 🧪 Interactive Scenario Stress-Testing Workbench
-- Allows agronomists to simulate custom weather scenarios (**Normal Baseline**, **Heavy Rainfall Alert**, **Dry-Spell / Break-Spell Risk**) to preview dynamic advisory outputs and timeline actions in real-time.
-
-### 7. 📄 Automated 12-Page PDF Report Generator
-- Programmatic PDF generation script ([build_pdf_report.py](file:///c:/Users/LENOVO/OneDrive/SMART%20INDIA%20HACKATHON/build_pdf_report.py)) using ReportLab that compiles the full technical architecture, model performance charts (ROC-AUC curves, Brier calibration, Feature importances), rule matrices, and system flowcharts into a publication-ready report.
+### 1.4 Geospatial Resolution & Location Honesty
+- Full Geographical Resolution: Resolution support across all 28 Indian States and primary agricultural districts.
+- Transparent Location Metadata: Explicitly returns metadata flags (`is_direct_match` and `location_resolution_note`) to indicate when a station has direct historical training observations versus when regional baselines are applied.
 
 ---
 
-## 🏗 System Architecture
+## 2. Technical Architecture
 
 ```text
-                               ┌───────────────────────────────────────────────┐
-                               │  Vercel Frontend (React + Vite + Tailwind v4) │
-                               │  https://smart-india-hackathon-2026.vercel.app│
-                               └──────────────────────┬────────────────────────┘
-                                                      │ HTTPS / JSON API
-                                                      ▼
-                               ┌───────────────────────────────────────────────┐
-                               │  Render Backend Server (FastAPI / Python)     │
-                               │  https://monsoon-forcasting.onrender.com     │
-                               └──────────────────────┬────────────────────────┘
-                                                      │
-                                                      ▼
-                               ┌───────────────────────────────────────────────┐
-                               │       Production Inference Pipeline           │
-                               │        [backend/inference_pipeline.py]        │
-                               └──────────────┬─────────────────┬──────────────┘
-                                              │                 │
-                                              ▼                 ▼
-                        ┌───────────────────────────┐   ┌───────────────────────────┐
-                        │ 12 Frozen XGBoost Models  │   │ Phase 6 Advisory Engine   │
-                        │ + Isotonic Calibrators    │   │    [backend/advisory/]    │
-                        │  (Onset, Break, Heavy)    │   │  (50+ Crops, 6 Stages)    │
-                        └───────────────────────────┘   └───────────────────────────┘
+  +-------------------------------------------------------------------------------+
+  |                        Vercel Production Frontend                             |
+  |                        React 19 + Vite + Tailwind v4                          |
+  |             https://smart-india-hackathon-2026.vercel.app                     |
+  +---------------------------------------+---------------------------------------+
+                                          | HTTPS / REST API
+                                          v
+  +-------------------------------------------------------------------------------+
+  |                         Render Production Backend                             |
+  |                           FastAPI / Python 3.12                               |
+  |                    https://monsoon-forcasting.onrender.com                    |
+  +-------------------+---------------------------------------+-------------------+
+                      |                                       |
+                      v                                       v
+  +---------------------------------------+   +-----------------------------------+
+  |    Voice Assistant Module             |   | Production Inference Pipeline     |
+  |    [backend/voice_assistant/]         |   | [backend/inference_pipeline.py]   |
+  |                                       |   |                                   |
+  |  - Prisma STT Service (v2.5)          |   |  - 30-Feature Temporal Extractor  |
+  |  - Timbre TTS Service (v2.5)          |   |  - 12 Frozen XGBoost Classifiers  |
+  |  - Context Extractor (Agro entities)  |   |  - 12 Isotonic Calibrators        |
+  |  - Multi-Turn Conversation Memory     |   |  - Location Honesty Resolver      |
+  |  - Grounded Reasoning Explainer       |   +-----------------+-----------------+
+  +-------------------+-------------------+                     |
+                      |                                         v
+                      |                       +-----------------------------------+
+                      |                       | Phase 6 Agricultural Engine       |
+                      |                       | [backend/advisory/]               |
+                      |                       |  - 50+ Crop Rule Matrix           |
+                      |                       |  - 6 Growth Stage Evaluators      |
+                      |                       |  - False-Onset Risk Protection    |
+                      |                       +-----------------+-----------------+
+                      |                                         |
+                      +────────────────────<────────────────────+
 ```
 
 ---
 
-## 📁 Repository Structure
+## 3. Directory Structure
 
 ```text
 .
 ├── backend/
-│   ├── main.py                          # FastAPI application server & REST routes
-│   ├── inference_pipeline.py            # End-to-end ML prediction & calibration engine
-│   ├── test_inference_pipeline.py       # Standalone backend test suite
-│   ├── Dockerfile                       # Container deployment definition for Render
-│   ├── requirements.txt                 # Backend Python dependencies
-│   ├── advisory/                        # Phase 6 Agricultural Advisory Engine
-│   │   ├── engine.py                    # Deterministic decision rule engine
-│   │   ├── rules.py                     # Priority hierarchy & risk thresholds
-│   │   ├── crops.py                     # 50+ crop catalog & stage sensitivity matrix
-│   │   └── schemas.py                   # Input/output dataclasses & Pydantic models
-│   ├── models/                          # Frozen Phase 3B XGBoost models & Isotonic calibrators
-│   └── data/                            # Historical meteorological datasets & climate indices
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── router.py                # Central FastAPI route registry
+│   │   ├── core/
+│   │   │   └── config.py                # Pydantic environment settings
+│   │   ├── db/                          # Database session and initialization
+│   │   ├── models/                      # SQLAlchemy domain models
+│   │   └── schemas/                     # Domain validation schemas
+│   │
+│   ├── voice_assistant/                 # Monsoon AI Voice Assistant
+│   │   ├── __init__.py
+│   │   ├── routes.py                    # Voice REST endpoints (/transcribe, /ask, /speak)
+│   │   ├── prisma_service.py            # Gnani Prisma v2.5 STT integration
+│   │   ├── timbre_service.py            # Gnani Timbre v2.5 TTS integration
+│   │   ├── context_extractor.py         # Agro-entity & intent extraction
+│   │   ├── conversation_service.py      # Session memory & multi-turn cache
+│   │   └── reasoning_service.py         # Grounded conversational reasoning engine
+│   │
+│   ├── advisory/                        # Phase 6 Agricultural Decision Engine
+│   │   ├── engine.py                    # Deterministic rule engine
+│   │   ├── rules.py                     # Priority hierarchy and risk thresholds
+│   │   ├── crops.py                     # 50+ crop catalog and stage actions
+│   │   ├── schemas.py                   # Dataclasses and Pydantic models
+│   │   └── state_crops_catalog.json     # State-level commodity mappings
+│   │
+│   ├── models/
+│   │   └── event_models/                # 12 frozen XGBoost models and calibrators
+│   ├── data/                            # Historical climate records and indices
+│   ├── inference_pipeline.py            # End-to-end production inference pipeline
+│   ├── main.py                          # FastAPI application entrypoint
+│   ├── Dockerfile                       # Container deployment definition
+│   └── requirements.txt                 # Backend dependencies
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx                      # Main React application layout & state manager
+│   │   ├── api/
+│   │   │   └── config.js                # API base URL configuration
 │   │   ├── components/
 │   │   │   ├── dashboard/               # HeroStatus, ForecastOutlook, AdvisoryCard, KPIStrip
-│   │   │   └── pages/                   # AdvisoryPage, MethodologyPage, AnalyticsPage
-│   │   ├── hooks/                       # Custom hooks (useTextToSpeech, etc.)
-│   │   └── i18n/                        # English & Hindi translation dictionaries
-│   ├── vercel.json                      # Vercel deployment & API reverse-proxy rules
+│   │   │   ├── pages/                   # VoiceAssistantPage, MapPage, AdvisoryPage, ModelPage
+│   │   │   └── voice/                   # AudioPlayer, ChatMessage, ForecastSummaryCard
+│   │   ├── context/                     # LanguageContext (English / Hindi state)
+│   │   ├── hooks/                       # useVoiceRecorder, useTextToSpeech
+│   │   ├── services/                    # voiceService.js (STT, Ask, TTS API client)
+│   │   └── i18n/                        # Translation dictionaries
+│   ├── vercel.json                      # Vercel deployment routing and reverse proxy
 │   ├── package.json                     # Frontend dependencies
-│   └── vite.config.js                   # Vite builder & dev server configuration
+│   └── vite.config.js                   # Vite builder configuration
 │
-├── build_pdf_report.py                  # ReportLab automated 12-page PDF builder
-├── generate_charts.py                   # Matplotlib chart generator (ROC-AUC, Brier, Rules)
-├── Monsoon_Event_Forecasting_System_Comprehensive_Report.pdf  # Project PDF report
-├── docker-compose.yml                   # Container composition setup
-└── README.md                            # Main project documentation
+├── Monsoon_Event_Forecasting_System_Comprehensive_Report.pdf  # Comprehensive milestone report
+└── README.md
 ```
 
 ---
 
-## 🚀 Quickstart & Local Execution
+## 4. REST API Reference
 
-### Prerequisites
-- **Python 3.10+** (3.11 or 3.12 recommended)
-- **Node.js 18+** & **npm**
+### 4.1 Voice Assistant Endpoints
 
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/PR-REDHAWK/SMART-INDIA-HACKATHON-2026.git
-cd SMART-INDIA-HACKATHON-2026
+#### `POST /api/v1/voice/transcribe`
+Transcribes spoken microphone audio using Gnani Prisma v2.5.
+
+- Request Type: `multipart/form-data`
+- Parameters:
+  - `file`: Binary audio recording (`audio/wav`, `audio/ogg`, `audio/m4a`, max 30 seconds).
+  - `language`: Target language code (default: `hi-IN`).
+- Response:
+```json
+{
+  "transcript": "Meri gehun ki fasal ke liye agle saat din ki kya salah hai?",
+  "language": "hi-IN",
+  "duration": 4.2
+}
 ```
 
-### Step 2: Set Up & Launch FastAPI Backend
-```bash
-cd backend
+#### `POST /api/v1/voice/ask`
+Processes an agricultural question, extracts entities, retrieves live calibrated predictions, and formulates a grounded conversational response.
 
-# Create & activate virtual environment (Windows PowerShell)
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# Install backend dependencies
-pip install -r requirements.txt
-
-# Run backend unit test suite
-python test_inference_pipeline.py
-
-# Launch FastAPI development server
-python -m uvicorn main:app --reload --port 8000
+- Request Type: `application/json`
+- Request Body:
+```json
+{
+  "question": "Meri gehun ki fasal ke liye agle saat din ki kya salah hai?",
+  "conversation_id": "conv_948f2b7a",
+  "language": "hi-IN",
+  "location": "Uttar Pradesh",
+  "crop": "Wheat",
+  "growth_stage": "Sowing"
+}
 ```
-> ⚡ **Backend API**: `http://127.0.0.1:8000`  
-> 📖 **OpenAPI Docs**: `http://127.0.0.1:8000/docs`
-
-### Step 3: Set Up & Launch React Frontend
-Open a separate terminal:
-```bash
-cd frontend
-
-# Install frontend dependencies
-npm install
-
-# Launch Vite development server
-npm run dev
+- Response:
+```json
+{
+  "answer": "उत्तर प्रदेश में अगले 7 दिनों के लिए सूखा काल (Break-Spell) की संभावना 96% अधिक है। आपकी गेहूं की फसल (बुआई अवस्था) के लिए मुख्य कृषि सलाह: सूखी मिट्टी में अंकुरण विफलता से बचने के लिए गेहूं की बुआई से पहले पलेवा (Pre-sowing irrigation) अवश्य करें।",
+  "conversation_id": "conv_948f2b7a",
+  "extracted_context": {
+    "location": "Uttar Pradesh",
+    "crop": "Wheat",
+    "growth_stage": "Sowing",
+    "forecast_horizon": "7D"
+  },
+  "forecast_context": {
+    "onset_probability": 0.07,
+    "break_spell_probability": 0.96,
+    "heavy_rain_probability": 0.00,
+    "risk_level": "very_high",
+    "event_type": "Break Spell",
+    "match": {
+      "station": "Uttar Pradesh",
+      "confidence": 0.95
+    }
+  },
+  "advisory": {
+    "title": "High Dry-Spell Risk",
+    "primary_action": "सूखी मिट्टी में अंकुरण विफलता से बचने के लिए गेहूं की बुआई से पहले पलेवा (Pre-sowing irrigation) अवश्य करें।",
+    "supporting_actions": [
+      "बुआई की गहराई 3-5 सेमी बनाए रखें",
+      "जड़ वृद्धि हेतु बीजों को ट्राइकोडर्मा से उपचारित करें"
+    ]
+  },
+  "requires_clarification": false,
+  "clarification_prompt": null
+}
 ```
-> 🌐 **Frontend Dashboard**: `http://localhost:5173`
+
+#### `POST /api/v1/voice/speak`
+Converts text into natural spoken Hindi using Gnani Timbre v2.5.
+
+- Request Type: `application/json`
+- Request Body:
+```json
+{
+  "text": "अगले सात दिनों में सूखे की संभावना छियानवे प्रतिशत है। बुआई से पहले पलेवा अवश्य करें।",
+  "language": "hi-IN",
+  "voice": "Nalini"
+}
+```
+- Response: Binary audio stream (`Content-Type: audio/wav`).
 
 ---
 
-## 📡 API Endpoint Reference
+### 4.2 Forecast & Pipeline Endpoints
 
-### `POST /api/v1/forecast/predict`
-Executes the full forecasting and decision-support pipeline for a specified location, crop, and growth stage.
+#### `POST /api/v1/forecast/predict`
+Direct programmatic execution of the full forecasting and advisory pipeline.
 
-#### **Request Body**
+- Request Body:
 ```json
 {
   "state": "Uttar Pradesh",
   "prediction_date": "2024-06-15",
   "crop_name": "Rice",
   "growth_stage": "Sowing",
-  "soil_moisture_pct": 25.0
+  "soil_moisture_pct": 25.0,
+  "lang": "en"
 }
 ```
 
-#### **Response Body**
-```json
-{
-  "status": "SUCCESS",
-  "metadata": {
-    "requested_location": "Uttar Pradesh",
-    "resolved_state": "Uttar Pradesh",
-    "is_direct_match": true,
-    "location_resolution_note": "Direct validated Phase 3B model for Uttar Pradesh.",
-    "prediction_date": "2024-06-15",
-    "model_version": "Phase_3B_Official_Production",
-    "advisory_engine_version": "Phase_6_Rule_Engine"
-  },
-  "probabilities": {
-    "onset": { "7d": 6.6, "14d": 30.0, "21d": 41.2, "30d": 86.2 },
-    "break_spell": { "7d": 95.5, "14d": 100.0, "21d": 81.9, "30d": 100.0 },
-    "heavy_rain": { "7d": 0.0, "14d": 3.4, "21d": 0.7, "30d": 5.5 }
-  },
-  "advisory": {
-    "risk_level": "VERY_HIGH",
-    "event_type": "BREAK_SPELL",
-    "horizon_days": 7,
-    "probability": 95.5,
-    "probability_trend": "STABLE",
-    "false_onset_risk": false,
-    "crop_name": "Rice",
-    "growth_stage": "Sowing",
-    "title": "🟠 High Dry-Spell Risk",
-    "message": "A prolonged dry spell (break spell) is likely (95%) over the next 7 days.",
-    "primary_action": "Delay rain-dependent Rice sowing if practical due to imminent dry spell.",
-    "supporting_actions": [
-      "Prepare supplemental irrigation facilities",
-      "Keep nursery beds covered and hydrated"
-    ],
-    "reasoning": "Break Spell probability (95%) exceeded threshold (60%) at horizon 7D.",
-    "advisory_code": "BREAK_SPELL_WARNING"
-  }
-}
-```
+#### `GET /api/v1/forecast/live`
+Live inference query endpoint for dashboard widgets.
+
+#### `GET /api/v1/regions`
+Fetches geographic boundary stations, coordinates, and associated telemetry.
+
+#### `GET /api/v1/crops`
+Returns supported commodity lists filtered by state or nationwide catalog.
 
 ---
 
-## 🧪 Model Evaluation & Validation Protocol
+## 5. Local Setup & Execution
 
-The machine learning pipeline underwent rigorous chronological splitting to prevent data leakage:
+### Prerequisites
+- Python 3.10, 3.11, or 3.12
+- Node.js 18+ and npm
+- Valid Gnani AI API Key (for speech-to-text and text-to-speech features)
 
-| Dataset Split | Date Range | Record Count | Purpose |
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/PR-REDHAWK/SMART-INDIA-HACKATHON-2026.git
+cd SMART-INDIA-HACKATHON-2026
+```
+
+### Step 2: Configure Environment Variables
+Create `backend/.env`:
+```env
+GNANI_API_KEY=your_gnani_api_key_here
+GNANI_STT_URL=https://api.vachana.ai/stt/v3
+GNANI_STT_MODEL=prisma-v2.5
+GNANI_TTS_URL=https://api.vachana.ai/api/v1/tts/inference
+GNANI_TTS_MODEL=timbre-v2.5
+GNANI_TTS_VOICE=Nalini
+GNANI_TTS_LANGUAGE=hi-IN
+GNANI_TTS_SPEED=1.0
+```
+
+### Step 3: Backend Setup
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
+# On Linux/macOS: source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run verification tests
+python test_inference_pipeline.py
+
+# Launch development server
+python -m uvicorn main:app --reload --port 8000
+```
+- Local Backend API: `http://127.0.0.1:8000`
+- Interactive OpenAPI Docs: `http://127.0.0.1:8000/docs`
+
+### Step 4: Frontend Setup
+```bash
+cd ../frontend
+
+# Install dependencies
+npm install
+
+# Launch Vite development server
+npm run dev
+```
+- Local Frontend Application: `http://localhost:5173`
+
+---
+
+## 6. Evaluation Protocol & Scientific Metrics
+
+The machine learning models are evaluated under strict chronological splits to prevent data leakage:
+
+| Dataset Split | Temporal Range | Sample Count | Function |
 | :--- | :--- | :--- | :--- |
-| **TRAIN** | `2022-01-01` to `2023-12-31` | 6,570 records | Model parameter learning |
-| **VALIDATION** | `2024-01-01` to `2024-12-31` | 3,294 records | Threshold tuning & Isotonic probability calibration |
-| **TEST (Held-out)** | `2025-01-01` to `2025-12-01` | 3,015 records | Final out-of-sample performance evaluation |
+| Train Fold | 2022-01-01 to 2023-12-31 | 6,570 records | Feature learning and gradient boosting parameter optimization |
+| Validation Fold | 2024-01-01 to 2024-12-31 | 3,294 records | Probability calibration and decision threshold tuning |
+| Test Fold (Held-out) | 2025-01-01 to 2025-12-01 | 3,015 records | Final out-of-sample performance assessment |
 
-- **Calibration Quality**: Achieved a **Brier Score of 0.042** on held-out test data post Isotonic calibration.
-- **ROC-AUC Performance**: High discriminative performance across lead horizons (ROC-AUC > 0.88 for Onset and Break Spells).
-
----
-
-## 📄 Automated Technical PDF Report
-
-A complete 12-page PDF document detailing the engineering specifications, mathematical formulations, and model evaluations is available in the root directory:
-- **File**: `Monsoon_Event_Forecasting_System_Comprehensive_Report.pdf`
-- **Rebuild Command**:
-  ```bash
-  python generate_charts.py
-  python build_pdf_report.py
-  ```
+### Metric Highlights
+- Post-Calibration Brier Score: `0.042` across held-out testing partitions.
+- Discriminative Performance: ROC-AUC > `0.88` across sub-seasonal horizons for Onset and Dry-Spell classification.
+- Reliability Calibration: Verified via reliability diagrams comparing predicted probability buckets against observed empirical event frequencies.
 
 ---
 
-## ⚠️ Agronomic Disclaimer
+## 7. Technical PDF Report
 
-> **Notice**: The advisories generated by this system are produced by an automated deterministic decision engine based on statistical and machine learning forecasts. They are intended strictly for decision support and must be cross-verified by local Krishi Vigyan Kendra (KVK) extension officers or agronomists prior to field application.
+A comprehensive 12-page technical document detailing the mathematical formulation, feature importance matrices, calibration curves, and agronomic logic is provided in the repository:
+- File: `Monsoon_Event_Forecasting_System_Comprehensive_Report.pdf` (Included in repository root)
 
 ---
 
-## 📜 License & Acknowledgments
+## 8. Agronomic Disclaimer
 
-- Developed for the **Smart India Hackathon (SIH 2026)**.
-- Licensed under the **MIT License**.
+Notice: Recommendations generated by the Phase 6 Advisory Engine and the Monsoon AI Voice Assistant represent automated decision-support outputs based on statistical modeling and deterministic agronomic rules. All advisories are intended strictly for guidance and must be validated by local agricultural extension officers (e.g., Krishi Vigyan Kendra personnel) prior to field application.
+
+---
+
+## 9. License
+
+Developed for the Smart India Hackathon (SIH 2026). Distributed under the MIT License.
