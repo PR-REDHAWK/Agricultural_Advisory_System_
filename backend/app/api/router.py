@@ -12,7 +12,13 @@ try:
 except ImportError:
     from backend.inference_pipeline import run_production_inference
 
+try:
+    from voice_assistant.routes import router as voice_router
+except ImportError:
+    from backend.voice_assistant.routes import router as voice_router
+
 router = APIRouter()
+router.include_router(voice_router)
 
 class ForecastPredictRequest(BaseModel):
     state: str = "Uttar Pradesh"

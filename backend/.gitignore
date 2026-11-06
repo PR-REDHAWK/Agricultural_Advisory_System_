@@ -13,6 +13,7 @@ dist/
 
 # Environment variables
 .env
+.env.example
 
 # Generated database
 monsoon.db
