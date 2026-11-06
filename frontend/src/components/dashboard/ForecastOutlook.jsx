@@ -34,7 +34,7 @@ export default function ForecastOutlook({ liveForecast }) {
   ];
 
   return (
-    <div className="glass-panel p-[22px] flex flex-col gap-4 w-full h-[320px]">
+    <div className="glass-panel p-5.5 flex flex-col gap-4 w-full h-80">
       <div className="flex justify-between items-center">
         <h2 className="font-display text-[16px] font-semibold">{t("outlook_title", "Monsoon Outlook")}</h2>
         <span className="panel-label">{t("outlook_subtitle", "Phase 3B Calibrated Probabilities")}</span>

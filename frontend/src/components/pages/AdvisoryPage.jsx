@@ -502,7 +502,7 @@ export default function AdvisoryPage({
           {displayedAdvisoriesList.length > 0 && (
             <div className="flex flex-col gap-3 mt-1 mb-1">
               <div className="flex justify-between items-center">
-                <span className="font-mono text-[10px] tracking-[.1em] text-violet-500 uppercase">
+                <span className="font-mono text-[10px] tracking-widest text-violet-500 uppercase">
                   {t("liveAlerts", "LIVE DATABASE ALERTS FOR")} {locationName.toUpperCase()} ({displayedAdvisories.length} OF {displayedAdvisoriesList.length})
                 </span>
                 {displayedAdvisoriesList.length > maxAlertCap && (
@@ -562,7 +562,7 @@ export default function AdvisoryPage({
         </div>
 
         {/* Right Side: Interactive Decision Timeline */}
-        <div className="glass-panel p-5.5 flex flex-col justify-between min-h-[400px]">
+        <div className="glass-panel p-5.5 flex flex-col justify-between min-h-100">
           <div>
             <span className="panel-label">
               {isHi 
@@ -572,7 +572,7 @@ export default function AdvisoryPage({
             
             <div className="relative mt-8 ml-2 flex flex-col gap-8">
               {/* Vertical line connector */}
-              <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-violet-500 via-teal-500 to-rose-400"></div>
+              <div className="absolute left-2.25 top-2 bottom-2 w-0.5 bg-linear-to-b from-violet-500 via-teal-500 to-rose-400"></div>
 
               <TimelineStep step={isHi ? "आज" : "TODAY"} desc={timelineSteps.today} color="bg-violet-500" />
               <TimelineStep step={isHi ? "अगले 3 दिन" : "NEXT 3 DAYS"} desc={timelineSteps.d3} color="bg-teal-500" />
@@ -611,7 +611,7 @@ function SubAdvisoryCard({ icon, title, desc, type }) {
   return (
     <div className="glass-panel p-5 flex flex-col gap-3">
       <div className="flex justify-between items-center">
-        <div className="w-[32px] h-[32px] rounded-lg bg-[rgba(139,124,246,0.18)] text-violet-500 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-[rgba(139,124,246,0.18)] text-violet-500 flex items-center justify-center">
           {icon}
         </div>
         <span className="font-mono text-[9px] tracking-[.08em] uppercase text-text-lo">{type}</span>

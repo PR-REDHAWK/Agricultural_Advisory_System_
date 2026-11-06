@@ -9,6 +9,8 @@ import AdvisoryCard from "./components/dashboard/AdvisoryCard";
 import AdvisoryFeed from "./components/dashboard/AdvisoryFeed";
 import DeliveryChannels from "./components/dashboard/DeliveryChannels";
 import { LanguageProvider } from "./context/LanguageContext";
+import VoiceComposerCard from "./components/dashboard/VoiceComposerCard";
+import VoiceAssistantPage from "./components/pages/VoiceAssistantPage";
 
 import { getApiUrl } from "./api/config";
 
@@ -26,6 +28,11 @@ function AppContent() {
   const [selectedDistrictId, setSelectedDistrictId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [liveForecast, setLiveForecast] = useState(null);
+  const [voiceMode, setVoiceMode] = useState("voice");
+  const [voiceText, setVoiceText] = useState("");
+  const [voiceStatus, setVoiceStatus] = useState("idle");
+  const [voiceElapsed, setVoiceElapsed] = useState(0);
+  const [voiceInitialQuestion, setVoiceInitialQuestion] = useState("");
 
   // Fetch live geographical context from database
   useEffect(() => {
@@ -114,6 +121,62 @@ function AppContent() {
             
             {/* KPI STRIP */}
             <KPIStrip selectedRegion={selectedDistrict || selectedState} liveForecast={liveForecast} />
+
+            {/* MONSOON AI ASSISTANT */}
+            <section className="w-full grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-6 items-center">
+
+              {/* LEFT: Introduction */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] font-mono tracking-[0.15em] text-slate-500">
+                    CONVERSATIONAL AGRICULTURAL INTELLIGENCE
+                  </span>
+                </div>
+
+                <h2 className="text-2xl font-bold text-[#0f1b3d]">
+                  Monsoon AI Assistant
+                </h2>
+
+                <p className="text-sm text-slate-500 leading-relaxed max-w-md">
+                  Your personal agricultural intelligence assistant.
+                  Ask about rainfall forecasts, crop conditions and
+                  agricultural advisories in Hindi or Hinglish.
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {["Weather Forecast", "Crop Advisory", "Rainfall Risk"].map(item => (
+                    <span
+                      key={item}
+                      className="px-3 py-1.5 rounded-full border border-blue-100
+                      bg-white/60 text-[11px] text-slate-600"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* RIGHT: Voice Console */}
+              <div className="w-full flex justify-end">
+                <VoiceComposerCard
+                  mode={voiceMode}
+                  onModeChange={setVoiceMode}
+                  status={voiceStatus}
+                  elapsed={voiceElapsed}
+                  maxSeconds={30}
+                  value={voiceText}
+                  onValueChange={setVoiceText}
+                  onMicClick={() => setCurrentPage("voice-assistant")}
+                  onSend={() => {
+                    setCurrentPage("voice-assistant");
+                  }}
+                  languageLabel="हिंदी · hi-IN"
+                  className="w-full max-w-none"
+                />
+              </div>
+
+            </section>
             
             {/* FORECAST & ADVISORY ROW */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-[22px] items-stretch">
@@ -128,6 +191,8 @@ function AppContent() {
             </div>
           </>
         );
+      case "voice-assistant":
+        return <VoiceAssistantPage />;
       case "map":
         return (
           <MapPage 

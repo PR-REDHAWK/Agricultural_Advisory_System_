@@ -5,7 +5,8 @@ import {
   Database,
   Brain,
   Wind,
-  Settings
+  Settings,
+  MessageCircle
 } from "lucide-react";
 import clsx from "clsx";
 import { useLanguage } from "../../context/LanguageContext";
@@ -25,6 +26,12 @@ export default function Sidebar({ currentPage, onPageChange }) {
           active={currentPage === "dashboard"} 
           title={t("nav_dashboard", "Dashboard")} 
           onClick={() => onPageChange("dashboard")}
+        />
+        <NavItem
+          icon={<MessageCircle size={19} />}
+          active={currentPage === "voice-assistant"}
+          title="Voice Assistant"
+          onClick={() => onPageChange("voice-assistant")}
         />
         <NavItem 
           icon={<MapIcon size={19} />} 
