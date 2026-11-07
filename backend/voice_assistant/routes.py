@@ -64,12 +64,12 @@ async def ask_voice(req: AskRequest):
         # 1. Extract context from query and prior state
         extracted = extract_agro_context(req.question, prior_context=conv.get("context"))
 
-        # Explicit overrides from frontend if passed
-        if req.location:
+        # Explicit overrides from frontend only if NOT detected in the query
+        if not extracted.get("location") and req.location:
             extracted["location"] = req.location
-        if req.crop:
+        if not extracted.get("crop") and req.crop:
             extracted["crop"] = req.crop
-        if req.growth_stage:
+        if not extracted.get("growth_stage") and req.growth_stage:
             extracted["growth_stage"] = req.growth_stage
 
         # 2. Run Grounded Reasoning Engine

@@ -33,7 +33,9 @@ CROP_NAME_HI = {
     "Urad": "उड़द",
     "Ragi": "रागी",
     "Sunflower": "सूरजमुखी",
-    "Jute": "जूट"
+    "Jute": "जूट",
+    "Tea": "चाय",
+    "Coffee": "कॉफी"
 }
 
 STAGE_NAME_HI = {
@@ -46,7 +48,7 @@ STAGE_NAME_HI = {
 }
 
 def generate_grounded_conversational_answer(
-    crop: str,
+    crop: Optional[str],
     stage: str,
     location: str,
     horizon: str,
@@ -60,15 +62,41 @@ def generate_grounded_conversational_answer(
     Produces fluent, concise, farmer-friendly Hindi answers based directly on
     the actual calibrated probabilities and Phase 6 Advisory Engine output.
     """
-    crop_hi = CROP_NAME_HI.get(crop, crop)
-    stage_hi = STAGE_NAME_HI.get(stage, stage)
     h_days = horizon.replace("D", "").replace("d", "")
-
     h_key = f"{h_days}d" if f"{h_days}d" in forecast_probs.get("onset", {}) else "7d"
     onset_pct = round(forecast_probs.get("onset", {}).get(h_key, 0.0))
     break_pct = round(forecast_probs.get("break_spell", {}).get(h_key, 0.0))
     heavy_pct = round(forecast_probs.get("heavy_rain", {}).get(h_key, 0.0))
 
+    if break_pct >= 50:
+        weather_desc = f"सूखा काल (Break-Spell) की संभावना {break_pct}% काफी अधिक है"
+    elif heavy_pct >= 50:
+        weather_desc = f"भारी बारिश की संभावना {heavy_pct}% काफी अधिक है"
+    elif onset_pct >= 60:
+        weather_desc = f"मानसून आगमन व अच्छी बारिश की संभावना {onset_pct}% है"
+    else:
+        weather_desc = f"सामान्य मानसूनी परिस्थितियां रहने की संभावना है (भारी बारिश {heavy_pct}%, सूखा काल {break_pct}%)"
+
+    # CASE A: If NO crop was specified by the user (general weather query)
+    if not crop:
+        if break_pct >= 50:
+            general_action = "लंबे सूखे की संभावना को देखते हुए खेतों में नमी संरक्षण (मल्चिंग, हल्की निराई) के उपाय करें और वर्षा-आधारित बुआई 4-5 दिन टालें।"
+        elif heavy_pct >= 50:
+            general_action = "भारी बारिश के जोखिम को देखते हुए खेतों की जल निकासी नालियां (Drainage) साफ रखें ताकि जलभराव और बीज सड़न से बचा जा सके।"
+        elif onset_pct >= 60:
+            general_action = "मानसून वर्षा के अनुकूल रहने की संभावना है। खेत की तैयारी व बुआई योजना पूर्ण रखें।"
+        else:
+            general_action = "मौसम सामान्य रहने का अनुमान है। नियमित कृषि कार्य जारी रखें।"
+
+        return (
+            f"{location} में अगले {h_days} दिनों के लिए {weather_desc}। "
+            f"कृषि मौसम सलाह: {general_action} "
+            f"(विशिष्ट फसल सलाह हेतु अपनी फसल जैसे गेहूं, मक्का, कपास, सरसों, या गन्ना का नाम बताएं।)"
+        )
+
+    # CASE B: If a specific crop IS specified
+    crop_hi = CROP_NAME_HI.get(crop, crop)
+    stage_hi = STAGE_NAME_HI.get(stage, stage)
     primary_action = advisory.get("primary_action", "")
     supporting = advisory.get("supporting_actions", [])
     supp_text = f" साथ ही: {supporting[0]}।" if supporting else ""
@@ -86,16 +114,6 @@ def generate_grounded_conversational_answer(
             f"भारी बारिश का जोखिम {heavy_pct}% और सूखे का जोखिम {break_pct}% आंका गया है।"
         )
     else:
-        # Standard grounded advisory explanation
-        if break_pct >= 50:
-            weather_desc = f"सूखा काल (Break-Spell) की संभावना {break_pct}% अधिक है"
-        elif heavy_pct >= 50:
-            weather_desc = f"भारी बारिश की संभावना {heavy_pct}% काफी अधिक है"
-        elif onset_pct >= 60:
-            weather_desc = f"मानसून आगमन व बारिश की संभावना {onset_pct}% अच्छी है"
-        else:
-            weather_desc = f"सामान्य मानसूनी परिस्थितियां रहने की संभावना है (भारी बारिश {heavy_pct}%, सूखा {break_pct}%)"
-
         return (
             f"{location} में अगले {h_days} दिनों के लिए {weather_desc}। "
             f"आपकी {crop_hi} की फसल ({stage_hi} अवस्था) के लिए मुख्य कृषि सलाह: {primary_action}{supp_text} "
@@ -113,11 +131,11 @@ async def process_question(
     Main reasoning pipeline orchestrator:
     1. Resolves clarification requirement if vital context is completely missing
     2. Answers definition questions immediately
-    3. Calls run_production_inference() with active crop and location
+    3. Calls run_production_inference() with active location and crop
     4. Formulates grounded response and returns data matching frontend contracts
     """
     location = extracted.get("location") or prior_conv.get("context", {}).get("location")
-    crop = extracted.get("crop") or prior_conv.get("context", {}).get("crop")
+    crop = extracted.get("crop")  # Freshly extracted crop (None if not mentioned)
     growth_stage = extracted.get("growth_stage") or prior_conv.get("context", {}).get("growth_stage") or "Sowing"
     horizon = extracted.get("forecast_horizon") or prior_conv.get("context", {}).get("forecast_horizon") or "7D"
     intent = extracted.get("intent", "GENERAL")
@@ -176,16 +194,17 @@ async def process_question(
             "clarification_prompt": "कृपया बताएं कि आप किस जिले और कौनसी फसल (जैसे धान, गेहूं, मक्का, कपास) के बारे में जानकारी चाहते हैं?"
         }
 
-    # Default fallbacks if one is known
-    eff_crop = crop or "Rice"
+    # Location fallback if not specified
     eff_location = location or "Uttar Pradesh"
+    # For model execution: crop parameter for meteorological calculation
+    inference_crop = crop or "Rice"
 
     # 3. Retrieve Ground Truth via Production Inference Pipeline
     lang_code = "hi" if "hi" in language.lower() else "en"
     inference_result = run_production_inference(
         state=eff_location,
         prediction_date_str="2024-06-15",
-        crop_name=eff_crop,
+        crop_name=inference_crop,
         growth_stage=growth_stage,
         soil_moisture_pct=25.0,
         lang=lang_code
@@ -217,15 +236,23 @@ async def process_question(
         }
     }
 
-    advisory_data = {
-        "title": adv_output.get("title", ""),
-        "primary_action": adv_output.get("primary_action", ""),
-        "supporting_actions": adv_output.get("supporting_actions", [])
-    }
+    if crop:
+        advisory_data = {
+            "title": adv_output.get("title", ""),
+            "primary_action": adv_output.get("primary_action", ""),
+            "supporting_actions": adv_output.get("supporting_actions", [])
+        }
+    else:
+        # General weather advisory title when no specific crop was asked
+        advisory_data = {
+            "title": f"{eff_location} मौसमी चेतावनी एवं कृषि सलाह",
+            "primary_action": adv_output.get("primary_action", "मौसम पूर्वानुमान के अनुसार खेतों में जल प्रबंधन सुनिश्चित करें।"),
+            "supporting_actions": ["विशिष्ट फसल सलाह हेतु अपनी फसल (गेहूं, मक्का, कपास, सरसों) का नाम बताएं"]
+        }
 
     # 4. Synthesize Conversational Answer
     answer = generate_grounded_conversational_answer(
-        crop=eff_crop,
+        crop=crop,
         stage=growth_stage,
         location=eff_location,
         horizon=horizon,
@@ -240,8 +267,8 @@ async def process_question(
         "conversation_id": conversation_id,
         "extracted_context": {
             "location": eff_location,
-            "crop": eff_crop,
-            "growth_stage": growth_stage,
+            "crop": crop,  # Returns None if user did NOT specify a crop
+            "growth_stage": growth_stage if crop else None,
             "forecast_horizon": horizon
         },
         "forecast_context": forecast_context,

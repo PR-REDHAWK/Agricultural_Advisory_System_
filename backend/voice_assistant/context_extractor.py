@@ -3,26 +3,46 @@ from typing import Dict, Any, Optional, Tuple
 
 # Comprehensive Hindi/Hinglish to English Crop mapping
 CROP_ALIASES = {
-    "dhaan": "Rice", "dhan": "Rice", "chawal": "Rice", "धान": "Rice", "चावल": "Rice", "rice": "Rice", "paddy": "Rice",
-    "gehun": "Wheat", "gehu": "Wheat", "गेहूं": "Wheat", "wheat": "Wheat",
-    "makka": "Maize", "makkay": "Maize", "मक्का": "Maize", "maize": "Maize", "corn": "Maize",
-    "kapas": "Cotton", "कपास": "Cotton", "cotton": "Cotton",
-    "soybean": "Soybean", "soya": "Soybean", "सोयाबीन": "Soybean", "soyabean": "Soybean",
-    "ganna": "Sugarcane", "गन्ना": "Sugarcane", "sugarcane": "Sugarcane",
-    "chana": "Gram", "चना": "Gram", "gram": "Gram", "chickpea": "Gram",
-    "tur": "Tur (Pigeon Pea)", "arhar": "Tur (Pigeon Pea)", "तुअर": "Tur (Pigeon Pea)", "अरहर": "Tur (Pigeon Pea)", "pigeon pea": "Tur (Pigeon Pea)",
+    # Rice / Paddy
+    "dhaan": "Rice", "chawal": "Rice", "paddy": "Rice", "धान": "Rice", "चावल": "Rice", "rice": "Rice", "dhan": "Rice",
+    # Wheat
+    "gehun": "Wheat", "gehu": "Wheat", "genhu": "Wheat", "गेहूं": "Wheat", "गेहुं": "Wheat", "wheat": "Wheat", "kanak": "Wheat",
+    # Maize
+    "makka": "Maize", "makke": "Maize", "makkay": "Maize", "makai": "Maize", "मक्का": "Maize", "मक्के": "Maize", "मकई": "Maize", "maize": "Maize", "corn": "Maize", "bhutta": "Maize",
+    # Cotton
+    "kapas": "Cotton", "कपास": "Cotton", "cotton": "Cotton", "rui": "Cotton",
+    # Soybean
+    "soybean": "Soybean", "soya": "Soybean", "soyabean": "Soybean", "सोयाबीन": "Soybean", "सोया": "Soybean",
+    # Sugarcane
+    "ganna": "Sugarcane", "ganne": "Sugarcane", "गन्ना": "Sugarcane", "गन्ने": "Sugarcane", "sugarcane": "Sugarcane", "eekh": "Sugarcane", "ईख": "Sugarcane",
+    # Gram / Chickpea
+    "chana": "Gram", "chane": "Gram", "चना": "Gram", "चने": "Gram", "gram": "Gram", "chickpea": "Gram", "chhole": "Gram",
+    # Tur / Arhar
+    "arhar": "Tur (Pigeon Pea)", "tur": "Tur (Pigeon Pea)", "toor": "Tur (Pigeon Pea)", "तुअर": "Tur (Pigeon Pea)", "अरहर": "Tur (Pigeon Pea)", "तूर": "Tur (Pigeon Pea)", "pigeon pea": "Tur (Pigeon Pea)",
+    # Groundnut
     "moongfali": "Groundnut", "mungfali": "Groundnut", "मूंगफली": "Groundnut", "groundnut": "Groundnut", "peanut": "Groundnut",
-    "sarson": "Mustard", "सरसों": "Mustard", "mustard": "Mustard", "raya": "Mustard",
+    # Mustard
+    "sarson": "Mustard", "sarso": "Mustard", "सरसों": "Mustard", "mustard": "Mustard", "rai": "Mustard", "raya": "Mustard",
+    # Bajra
     "bajra": "Bajra", "बाजरा": "Bajra", "pearl millet": "Bajra",
-    "jowar": "Jowar", "ज्वार": "Jowar", "sorghum": "Jowar",
+    # Jowar
+    "jowar": "Jowar", "jawar": "Jowar", "ज्वार": "Jowar", "sorghum": "Jowar",
+    # Potato
     "aaloo": "Potato", "alu": "Potato", "आलू": "Potato", "potato": "Potato",
-    "pyaaz": "Onion", "pyaj": "Onion", "प्याज": "Onion", "onion": "Onion",
+    # Onion
+    "pyaaz": "Onion", "pyaj": "Onion", "प्याज": "Onion", "kanda": "Onion", "कांदा": "Onion", "onion": "Onion",
+    # Barley
     "jau": "Barley", "जौ": "Barley", "barley": "Barley",
+    # Moong
     "moong": "Moong", "मूंग": "Moong", "green gram": "Moong",
+    # Urad
     "urad": "Urad", "उड़द": "Urad", "black gram": "Urad",
-    "ragi": "Ragi", "रागी": "Ragi", "finger millet": "Ragi",
+    # Sunflower
     "surajmukhi": "Sunflower", "सूरजमुखी": "Sunflower", "sunflower": "Sunflower",
-    "jute": "Jute", "जूट": "Jute", "पटसन": "Jute"
+    # Jute
+    "jute": "Jute", "जूट": "Jute", "patsan": "Jute", "पटसन": "Jute",
+    # Tea & Coffee
+    "chai": "Tea", "चाय": "Tea", "tea": "Tea", "coffee": "Coffee", "कॉफी": "Coffee"
 }
 
 # Growth Stage aliases
@@ -77,6 +97,23 @@ LOCATION_ALIASES = {
     "haryana": "Haryana", "हरियाणा": "Haryana"
 }
 
+def _match_entity(text: str, alias_dict: Dict[str, str]) -> Optional[str]:
+    """
+    Safely matches aliases using regex word boundaries to prevent false substring matches
+    (e.g., 'dhan' in 'dhanyawad', 'tur' in 'future', 'alu' in 'chalu').
+    """
+    # Sort longest alias first to match multi-word phrases first
+    for alias in sorted(alias_dict.keys(), key=len, reverse=True):
+        canonical = alias_dict[alias]
+        if re.search(r'[\u0900-\u097F]', alias):
+            pattern = r'(?<![\u0900-\u097F])' + re.escape(alias) + r'(?![\u0900-\u097F])'
+        else:
+            pattern = r'(?<![a-zA-Z])' + re.escape(alias.lower()) + r'(?![a-zA-Z])'
+        
+        if re.search(pattern, text):
+            return canonical
+    return None
+
 def extract_agro_context(question: str, prior_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Extracts agro-meteorological entities and intent from farmer query:
@@ -85,7 +122,7 @@ def extract_agro_context(question: str, prior_context: Optional[Dict[str, Any]] 
     - growth_stage (Canonical growth stage)
     - forecast_horizon ("7D", "14D", "21D", "30D")
     - intent ("DEFINITION", "CONTINGENCY", "GENERAL")
-    Falls back gracefully to prior_context when the question is a follow-up.
+    Falls back gracefully to prior_context only when question is an explicit follow-up.
     """
     q_lower = question.lower()
     prior = prior_context or {}
@@ -96,41 +133,29 @@ def extract_agro_context(question: str, prior_context: Optional[Dict[str, Any]] 
         intent = "DEFINITION"
     elif any(w in q_lower for w in ["nahi hui toh", "nahi aayi toh", "na ho toh", "agar baarish na", "sukha pad jaye", "बारिश नहीं हुई तो", "सूखा पड़ जाए"]):
         intent = "CONTINGENCY"
-    elif any(w in q_lower for w in ["pichhle", "pichle", "पिछले", "above", "as mentioned", "us hisab se", "uske hisab se"]):
+    elif any(w in q_lower for w in ["pichhle", "pichle", "पिछले", "above", "as mentioned", "us hisab se", "uske hisab se", "iska kya", "ab kya", "fir kya", "tab kya"]):
         intent = "FOLLOW_UP"
 
-    # 2. Extract Crop
-    detected_crop = None
-    for alias, canonical in CROP_ALIASES.items():
-        pattern = r'\b' + re.escape(alias) + r'\b'
-        if re.search(pattern, q_lower) or alias in q_lower:
-            detected_crop = canonical
-            break
+    # 2. Extract Crop (Strict boundary match)
+    detected_crop = _match_entity(q_lower, CROP_ALIASES)
+    # Only inherit prior crop if question is an explicit follow-up or asks about crop advice
     if not detected_crop and prior.get("crop"):
-        detected_crop = prior.get("crop")
+        if intent in ["CONTINGENCY", "FOLLOW_UP"] or any(w in q_lower for w in ["fasal", "फसल", "crop", "paani", "sinchai", "salah", "सलाह"]):
+            detected_crop = prior.get("crop")
 
-    # 3. Extract Growth Stage
-    detected_stage = None
-    for alias, canonical in STAGE_ALIASES.items():
-        pattern = r'\b' + re.escape(alias) + r'\b'
-        if re.search(pattern, q_lower) or alias in q_lower:
-            detected_stage = canonical
-            break
+    # 3. Extract Growth Stage (Strict boundary match)
+    detected_stage = _match_entity(q_lower, STAGE_ALIASES)
     if not detected_stage and prior.get("growth_stage"):
-        detected_stage = prior.get("growth_stage")
+        if intent in ["CONTINGENCY", "FOLLOW_UP"]:
+            detected_stage = prior.get("growth_stage")
 
-    # 4. Extract Location
-    detected_location = None
-    for alias, canonical in LOCATION_ALIASES.items():
-        pattern = r'\b' + re.escape(alias) + r'\b'
-        if re.search(pattern, q_lower) or alias in q_lower:
-            detected_location = canonical
-            break
+    # 4. Extract Location (Strict boundary match)
+    detected_location = _match_entity(q_lower, LOCATION_ALIASES)
     if not detected_location and prior.get("location"):
         detected_location = prior.get("location")
 
     # 5. Extract Horizon
-    detected_horizon = "7D"
+    detected_horizon = None
     if any(w in q_lower for w in ["14 din", "14-day", "14d", "chaudah", "chauda", "चौदह", "दो हफ्ते", "do hafte", "2 week"]):
         detected_horizon = "14D"
     elif any(w in q_lower for w in ["21 din", "21-day", "21d", "ikkis", "इक्कीस", "तीन हफ्ते", "3 week"]):
@@ -141,6 +166,8 @@ def extract_agro_context(question: str, prior_context: Optional[Dict[str, Any]] 
         detected_horizon = "7D"
     elif prior.get("forecast_horizon"):
         detected_horizon = prior.get("forecast_horizon")
+    else:
+        detected_horizon = "7D"
 
     return {
         "location": detected_location,
