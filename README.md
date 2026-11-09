@@ -1,5 +1,6 @@
 # Monsoon Event Forecasting & Conversational Agricultural Intelligence System
 
+[![Solution Pitch](https://img.shields.io/badge/Competition_Pitch-1--Page_Document-blueviolet.svg)](SOLUTION_PITCH.md)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://smart-india-hackathon-2026.vercel.app)
 [![Backend API](https://img.shields.io/badge/Backend_API-Render-46E3B7?logo=render)](https://monsoon-forcasting.onrender.com)
 [![API Docs](https://img.shields.io/badge/API_Docs-Swagger-85EA2D?logo=swagger)](https://monsoon-forcasting.onrender.com/docs)
@@ -7,6 +8,8 @@
 [![React](https://img.shields.io/badge/Frontend-React_%2F_Tailwind_v4-cyan.svg)](https://react.dev)
 [![XGBoost](https://img.shields.io/badge/ML-XGBoost_%2F_Isotonic_Calibration-orange.svg)](https://xgboost.readthedocs.io)
 [![Gnani AI](https://img.shields.io/badge/Voice_AI-Gnani_Prisma_%26_Timbre-purple.svg)](https://gnani.ai)
+
+> **Evaluation Pitch:** For judges reviewing **The Great Indian AI Internship Challenge 2026 by Gnani AI**, please see our concise [1-Page Solution Pitch Document](SOLUTION_PITCH.md).
 
 An end-to-end, sub-seasonal probabilistic meteorological forecasting platform and deterministic agricultural decision-support engine. Built for the Smart India Hackathon (SIH 2026), the system empowers Indian farmers, agronomists, and Krishi Vigyan Kendra (KVK) extension officers to mitigate extreme monsoon climate risks through calibrated machine learning forecasts, growth-stage advisories, and an integrated voice-first conversational AI interface powered by Gnani AI speech models.
 
