@@ -2,7 +2,7 @@
 
 **Challenge:** The Great Indian AI Internship Challenge 2026 by Gnani AI  
 **Track:** Voice AI & Applied Machine Learning  
-**Live Demo:** [smart-india-hackathon-2026.vercel.app](https://smart-india-hackathon-2026.vercel.app) | **API Docs:** [monsoon-forcasting.onrender.com/docs](https://monsoon-forcasting.onrender.com/docs) | **Repo:** [github.com/PR-REDHAWK/SMART-INDIA-HACKATHON-2026](https://github.com/PR-REDHAWK/SMART-INDIA-HACKATHON-2026)
+**Live Demo:** [agricultural-advisory-system.vercel.app](https://agricultural-advisory-system.vercel.app/) | **API Docs:** [monsoon-forcasting.onrender.com/docs](https://monsoon-forcasting.onrender.com/docs) | **Repo:** [github.com/PR-REDHAWK/Agricultural_Advisory_System](https://github.com/PR-REDHAWK/Agricultural_Advisory_System_)
 
 ---
 
